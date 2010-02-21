@@ -1,0 +1,116 @@
+#!/usr/bin/env ruby
+
+begin
+	require 'libvirt'
+	require 'ncurses'
+	require 'uri'
+rescue LoadError => e
+	$stderr.puts( e.message )
+	exit( 1 )
+end
+
+if( ARGV.size < 1 )
+	url = 'qemu:///system'
+else
+	uri = URI.parse( ARGV.first )
+
+	if( uri.scheme == 'qemu+ssh' and uri.path == '' )
+		raise( Exception.new( 'invalid url specified' ) )
+	else
+		url = uri.to_s
+	end
+end
+
+module Libvirt
+	class Connect
+		def domains
+			ret = Array.new
+
+			self.list_domains.each do |id|
+				ret.push( 
+					self.lookup_domain_by_id( id )
+				)
+			end
+
+			ret
+		end
+	end
+
+	class Domain
+		def to_s
+			self.name
+		end
+
+		def state
+			case( self.info.state )
+				when 1
+					"started"
+				when 3
+					"paused"
+				else
+					"unknown"
+			end
+		end
+
+		def mem
+			( self.info.memory / 1024 ).to_s + "M"
+		end
+
+		def mem_max
+			( self.info.max_mem / 1024 ).to_s + "M"
+		end
+
+		def cpu_num
+			self.info.nr_virt_cpu.to_s
+		end
+
+		def cpu_time
+			self.info.cpu_time.to_s
+		end
+	end
+end
+
+begin
+	c = Libvirt::open( url )
+rescue Libvirt::ConnectionError
+	$stderr.puts( 'connection failed' )
+	exit( 1 )
+end
+
+#	p c.domains.first.info.methods.sort
+#	exit
+
+begin
+	Ncurses.initscr
+	Ncurses.cbreak
+	Ncurses.noecho
+	Ncurses.nonl
+
+	n = Ncurses.stdscr
+
+	n.intrflush( false )
+	n.keypad( true )
+
+	n.addstr(
+		"name\t\tstate\tmem\tmem_max\tcpu_num\tcpu_time\n\n"
+	)
+
+	c.domains.each do |domain|
+		n.addstr(
+			domain.name		+ "\t" +
+			domain.state	+ "\t" +
+			domain.mem		+ "\t" +
+			domain.mem_max	+ "\t" +
+			domain.cpu_num	+ "\t" +
+			domain.cpu_time	+ "\n"
+		)
+	end
+
+	n.addstr( "\nany key to continue" )
+	n.getch
+ensure
+	Ncurses.echo
+	Ncurses.nocbreak
+	Ncurses.nl
+	Ncurses.endwin
+end
