@@ -44,11 +44,11 @@ module Libvirt
 		def state
 			case( self.info.state )
 				when 1
-					"started"
+					">"
 				when 3
-					"paused"
+					"||"
 				else
-					"unknown"
+					"?"
 			end
 		end
 
@@ -77,9 +77,6 @@ rescue Libvirt::ConnectionError
 	exit( 1 )
 end
 
-#	p c.domains.first.info.methods.sort
-#	exit
-
 begin
 	Ncurses.initscr
 	Ncurses.cbreak
@@ -88,29 +85,35 @@ begin
 
 	n = Ncurses.stdscr
 
-	n.intrflush( false )
-	n.keypad( true )
+	while( true )
+		Ncurses.clear
 
-	n.addstr(
-		"name\t\tstate\tmem\tmem_max\tcpu_num\tcpu_time\n\n"
-	)
+		n.intrflush( false )
+		n.keypad( true )
 
-	c.domains.each do |domain|
 		n.addstr(
-			domain.name		+ "\t" +
-			domain.state	+ "\t" +
-			domain.mem		+ "\t" +
-			domain.mem_max	+ "\t" +
-			domain.cpu_num	+ "\t" +
-			domain.cpu_time	+ "\n"
+			"name\t\tstate\tmem\tmem_max\tcpu_num\tcpu_time\n\n"
 		)
-	end
 
-	n.addstr( "\nany key to continue" )
-	n.getch
+		c.domains.each do |domain|
+			n.addstr(
+				domain.name		+ "\t" +
+				domain.state	+ "\t" +
+				domain.mem		+ "\t" +
+				domain.mem_max	+ "\t" +
+				domain.cpu_num	+ "\t" +
+				domain.cpu_time	+ "\n"
+			)
+		end
+
+		n.addstr( "\nany key to continue" )
+		n.getch
+	end
 ensure
 	Ncurses.echo
 	Ncurses.nocbreak
 	Ncurses.nl
 	Ncurses.endwin
+
+#	p n.methods.sort, "\n", Ncurses.methods.sort
 end
