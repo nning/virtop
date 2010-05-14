@@ -1,0 +1,7 @@
+== Installation ==
+
+Issue the following commands to install the needed ncurses and ruby-libvirt
+gems:
+
+ * gem sources -a http://gems.github.com
+ * gem install ruby-libvirt elliottcable-ncurses
