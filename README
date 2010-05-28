@@ -1,7 +1,10 @@
 == Installation ==
 
-Issue the following commands to install the needed ncurses and ruby-libvirt
-gems:
+The recommended way for installation is to add gems.github.com as a source
+for gems (especially elliottcable-ncurses, which is used to provide a ruby
+1.9.1 compatible ncurses library), build the virtop gem and install it:
 
  * gem sources -a http://gems.github.com
- * gem install ruby-libvirt elliottcable-ncurses
+ * gem build virtop.gemspec
+ * gem install --no-ri --no-rdoc virtop-*.gem
+
