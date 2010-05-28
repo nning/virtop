@@ -2,10 +2,24 @@
 
 begin
 	require 'libvirt'
-	require 'ncurses'
 	require 'uri'
 rescue LoadError => e
 	$stderr.puts( e.message )
+	exit( 1 )
+end
+
+begin
+	require 'ncurses'
+rescue LoadError
+	$stderr.puts <<EOF
+The Ruby bindings to the ncurses library are missing. The ncurses gem on
+rubygems.org is not working with Ruby 1.9, so please issue the following
+commands as superuser to install a working ncurses gem from github.com:
+
+  gem source -a http://gems.github.com
+  gem install elliottcable-ncurses
+
+EOF
 	exit( 1 )
 end
 
