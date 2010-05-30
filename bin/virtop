@@ -1,13 +1,17 @@
 #!/usr/bin/env ruby
 
+# Require libvirt and uri modules and print out exception message if they could
+# not be loaded.
 begin
-	require 'libvirt'
-	require 'uri'
+	require( 'libvirt' )
+	require( 'uri' )
 rescue LoadError => e
 	$stderr.puts( e.message )
 	exit( 1 )
 end
 
+# Require ncurses module and print out instructions howto install it if it could
+# not be loaded.
 begin
 	require 'ncurses'
 rescue LoadError
@@ -23,6 +27,16 @@ EOF
 	exit( 1 )
 end
 
+# Require virtop module. If not installed as gem, try it in the source's
+# directory.
+begin
+	require( 'virtop' )
+rescue LoadError
+	require( File.dirname( __FILE__ ) + '/../lib/virtop' )
+end
+
+# Connection URL will be qemu:///system if nothing else is given as the first
+# parameter.
 if( ARGV.size < 1 )
 	url = 'qemu:///system'
 else
@@ -35,58 +49,7 @@ else
 	end
 end
 
-class LetsExit < Exception
-end
-
-module Libvirt
-	class Connect
-		def domains
-			ret = Array.new
-
-			self.list_domains.each do |id|
-				ret.push( 
-					self.lookup_domain_by_id( id )
-				)
-			end
-
-			ret
-		end
-	end
-
-	class Domain
-		def to_s
-			self.name
-		end
-
-		def state
-			case( self.info.state )
-				when 1
-					">"
-				when 3
-					"||"
-				else
-					"?"
-			end
-		end
-
-		def mem
-			( self.info.memory / 1024 ).to_s + "M"
-		end
-
-		def mem_max
-			( self.info.max_mem / 1024 ).to_s + "M"
-		end
-
-		def cpu_num
-			self.info.nr_virt_cpu.to_s
-		end
-
-		def cpu_time
-			self.info.cpu_time.to_s
-		end
-	end
-end
-
+# Open the connection to the libvirt ressource or print out error message.
 begin
 	c = Libvirt::open( url )
 rescue Libvirt::ConnectionError
@@ -94,6 +57,8 @@ rescue Libvirt::ConnectionError
 	exit( 1 )
 end
 
+# Initialize ncurses context. Clear and print details for each domain in a 10s
+# interval. Quit on keypress of 'q'.
 begin
 	n = Ncurses.initscr
 
