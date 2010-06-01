@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
 	s.summary = 'The top for virtual machines (libvirt).'
 	s.description = 'virtop provides an overview of virtual machines runned with a solution abstracted by libvirt.'
 
-	s.version = '0.0.4'
+	s.version = '0.0.5'
 	s.author = 'henning mueller'
 	s.email = 'henning@orgizm.net'
 
