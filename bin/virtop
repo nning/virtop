@@ -27,13 +27,9 @@ EOF
 	exit( 1 )
 end
 
-# Require virtop module. If not installed as gem, try it in the source's
-# directory.
-begin
-	require( 'virtop' )
-rescue LoadError
-	require( File.dirname( __FILE__ ) + '/../lib/virtop' )
-end
+# Require virtop module.
+$:.unshift( File.join( File.dirname( __FILE__ ), '../lib' ) )
+require( 'virtop' )
 
 # Connection URL will be qemu:///system if nothing else is given as the first
 # parameter.
