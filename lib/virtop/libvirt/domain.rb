@@ -37,12 +37,7 @@ module Libvirt
 			h = ( t / 60 / 60 % 24       ).to_s
 			d = ( t / 60 / 60 / 24 % 365 ).to_s
 
-			str  = d != '0' ? d + '-' : ''
-			str += h != '0' ? "%02i:" % h : ''
-			str += "%02i:" % m
-			str += s
-
-			str
+			"%i-%02i:%02i:%02i" % [d, h, m, s]
 		end
 	end
 end
