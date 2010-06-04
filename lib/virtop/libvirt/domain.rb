@@ -30,12 +30,12 @@ module Libvirt
 		end
 
 		def cpu_time
-			t = self.info.cpu_time / 10**7 / 60
+			t = self.info.cpu_time / 10**9
 
-			d = ( t / 100 / 60 / 24 ).to_s
-			h = ( t / 100 / 60 % 24 ).to_s
-			m = ( t / 100 % 60      ).to_s
-			s = ( t % 100           ).to_s # TODO this value is not correct
+			s = ( t % 60                 ).to_s
+			m = ( t / 60 % 60            ).to_s
+			h = ( t / 60 / 60 % 24       ).to_s
+			d = ( t / 60 / 60 / 24 % 365 ).to_s
 
 			str  = d != '0' ? d + '-' : ''
 			str += h != '0' ? "%02i:" % h : ''
