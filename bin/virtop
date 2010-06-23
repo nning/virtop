@@ -1,9 +1,7 @@
 #!/usr/bin/env ruby
 
-# Require libvirt and uri modules and print out exception message if they could
-# not be loaded.
+# Require uri module and print out exception message if it could not be loaded.
 begin
-	require( 'libvirt' )
 	require( 'uri' )
 rescue LoadError => e
 	$stderr.puts( e.message )
@@ -27,9 +25,10 @@ EOF
 	exit( 1 )
 end
 
-# Require virtop module.
+# Require and include virtop module. It will require libvirt.
 $:.unshift( File.join( File.dirname( __FILE__ ), '../lib' ) )
 require( 'virtop' )
+include Virtop
 
 # Connection URL will be qemu:///system if nothing else is given as the first
 # parameter.
@@ -68,22 +67,32 @@ begin
 		n.intrflush( false )
 		n.keypad( true )
 
-		n.addstr(
-			"name\t\tstate\tmem\tmem_max\tcpu_num\tcpu_time\n\n"
+		t = Table.new(
+			'name',
+			'state',
+			'mem',
+			'mem_max',
+			'cpu_num',
+			'cpu_time'
 		)
 
 		c.domains.each do |domain|
-			n.addstr(
-				domain.name		+ "\t" +
-				domain.state	+ "\t" +
-				domain.mem		+ "\t" +
-				domain.mem_max	+ "\t" +
-				domain.cpu_num	+ "\t" +
-				domain.cpu_time	+ "\n"
+			t.add_row(
+				domain.name,
+				domain.state,
+				domain.mem,
+				domain.mem_max,
+				domain.cpu_num,
+				domain.cpu_time
 			)
 		end
 
+		t.format.each do |line|
+			n.addstr( line )
+		end
+
 		n.refresh
+
 		raise( LetsExit ) if( n.getch == 113 )
 	end
 rescue LetsExit

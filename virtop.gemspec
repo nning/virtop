@@ -1,10 +1,12 @@
+require( 'lib/virtop' )
+
 Gem::Specification.new do |s|
 	s.name = 'virtop'
 
 	s.summary = 'The top for virtual machines (libvirt).'
 	s.description = 'virtop provides an overview of virtual machines runned with a solution abstracted by libvirt.'
 
-	s.version = '0.0.6'
+	s.version = Virtop::VERSION
 	s.author = 'henning mueller'
 	s.email = 'henning@orgizm.net'
 
