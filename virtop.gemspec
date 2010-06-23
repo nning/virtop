@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
 	s.author = 'henning mueller'
 	s.email = 'henning@orgizm.net'
 
-	s.files = Dir.glob( '{bin,lib}/**/*' ) << 'README'
+	s.files = Dir.glob( '{bin,lib}/**/*' ) << 'README.rdoc'
 	s.executables = Dir.glob( 'bin/**' ).map { |x| x[4..-1] }
 
 	s.add_dependency( 'ruby-libvirt', '>= 0.1.0' )

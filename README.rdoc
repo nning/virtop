@@ -7,9 +7,8 @@ this mirror, because there is no version on rubygems.org which works with ruby
  * gem sources -a http://gems.github.com
  * gem install elliottcable-ncurses
 
-Build the virtop gem and install it. Do not build ri and rdoc documentation for
-this would throw nasty errors.
+Build the virtop gem and install it.
 
  * gem build virtop.gemspec
- * gem install --no-ri --no-rdoc virtop-*.gem
+ * gem install virtop-*.gem
 
