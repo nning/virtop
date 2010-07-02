@@ -33,7 +33,8 @@ class Virtop::Table
 			a.push( line + "\n" )
 		end
 
-		a.insert( 1, "\n" )
+#		a.insert( 1, "\n" )
+		a
 	end
 
 private
