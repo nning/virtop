@@ -12,3 +12,11 @@ Build the virtop gem and install it.
  * gem build virtop.gemspec
  * gem install virtop-*.gem
 
+This should install ruby-libvirt as a dependency. Seems to me, that ruby-libvirt
+from rubygems.org does not build with ruby 1.9. On Arch Linux you can install
+ruby-libvirt from AUR:
+
+http://aur.archlinux.org/packages.php?ID=31952
+
+On other platforms you have to hallucinate another solution. At the link above
+you find a patch to the ruby-libvirt sources, which makes it build in ruby 1.9.
