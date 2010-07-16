@@ -78,6 +78,7 @@ begin
 	Ncurses.noecho
 	Ncurses.halfdelay( 10 )
 
+	# Default sorting by first column (domain name).
 	sortBy = 0
 
 	while( true )
@@ -86,25 +87,23 @@ begin
 		n.intrflush( false )
 		n.keypad( true )
 
-		info = c.node_get_info
-
+		# Add topmost meta information lines to ncurses screen.
 		n.addstr(
 			c.hostname.upcase +
 			"\n" +
-			' cores ' + info.cores.to_s +
-			' cpus '  + info.cpus.to_s +
-			' mhz '   + info.mhz.to_s +
-			' arch '  + info.model.to_s +
+			' cores ' + c.cores +
+			' cpus ' + c.cpus +
+			' ghz ' + c.ghz +
+			' arch ' + c.arch +
 			"\n" +
-			' mem '   + info.memory.to_s +
-			' nodes ' + info.nodes.to_s +
-			' sockets ' + info.sockets.to_s +
-			' threads ' + info.threads.to_s +
+			' mem ' + c.mem +
+			' free ' + c.memfree +
 			"\n" +
-			' version ' + c.libversion.to_s +
+			' version ' + c.version +
 			"\n\n"
 		)
 
+		# Initialize table (columns).
 		t = Table.new(
 			'NAME',
 			'STATE',
@@ -114,6 +113,7 @@ begin
 			'CPU_TIME'
 		)
 
+		# Add information of each domain to table.
 		c.domains.each do |d|
 			t.add_row(
 				d.name,
@@ -125,16 +125,22 @@ begin
 			)
 		end
 
+		# Sort table by chosen column.
 		t.sort_by( sortBy )
 
+		# Convert table to array of padded strings and add them to ncurses
+		# screen.
 		t.format.each do |line|
 			n.addstr( line )
 		end
 
+		# Wait for single char user input.
 		char = n.getch
 		case( char )
+			# Key '1' till '6'
 			when 49..54
 				sortBy = char - 49
+			# Key 'q'
 			when 113
 				raise( LetsExit )
 		end
