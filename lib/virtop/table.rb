@@ -1,23 +1,20 @@
+# Represents a table. Important for column width correction and sorting of rows.
 class Virtop::Table
+	# Contructor gets table header strings as arguments.
 	def initialize( *args )
 		@header = args
 		@rows = []
 		@widths = [0] * args.size
 	end
 
-	def header
-		@header.to_s + "\n"
-	end
-
+	# Adds a row to the table. Number of arguments must equal the number of
+	# columns given by header strings on contruction.
 	def add_row( *args )
-		raise( Exception ) if( args.size != @header.size )
-		@rows.push( args )
-	end
-
-	def each_row
-		@rows.each do |row|
-			yield( row )
+		if( args.size != @header.size )
+			raise( Exception.new( 'Wrong column number.' ) )
 		end
+
+		@rows.push( args )
 	end
 
 	# Sorts the table by a certain column given by it's header string or the
@@ -34,10 +31,8 @@ class Virtop::Table
 		end
 	end
 
-	def rows
-		@rows
-	end
-
+	# Converts the whole table as array of strings, which are fancy formatted
+	# (mainly for good column widths).
 	def format
 		update_widths!
 
@@ -46,17 +41,17 @@ class Virtop::Table
 		( [ @header ] + @rows ).each do |row|
 			line = ''
 			@header.size.times do |i|
-				line += row[i].ljust( @widths[i] + 2 )
+				line += row[i].to_s.ljust( @widths[i] + 2 )
 			end
 			a.push( line + "\n" )
 		end
 
-#		a.insert( 1, "\n" )
 		a
 	end
 
 private
 
+	# Saves maximum width per column into the +@header+ array.
 	def update_widths!
 		@header.size.times do |i|
 			( [ @header ] + @rows ).each do |row|

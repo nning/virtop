@@ -25,6 +25,22 @@ EOF
 	exit( 1 )
 end
 
+# Show some lines of help.
+if( ARGV.first == "-h" or ARGV.first == "--help" )
+	$stderr.puts <<EOF
+#{$0} [libvirt-uri]
+
+libvirt-uri		is optional. Default is qemu:///system (for the local libvirt
+				daemon). See http://libvirt.org/uri.html for URI format.
+
+Key bindings:
+	q			Quit.
+	1..6		Sort by column number.
+
+EOF
+	exit( 1 )
+end
+
 # Require and include virtop module. It will require libvirt.
 $:.unshift( File.join( File.dirname( __FILE__ ), '../lib' ) )
 require( 'virtop' )
@@ -37,6 +53,7 @@ if( ARGV.size < 1 )
 else
 	uri = URI.parse( ARGV.first )
 
+	# Works around a deadlock if path is empty.
 	if( uri.scheme == 'qemu+ssh' and uri.path == '' )
 		raise( Exception.new( 'invalid url specified' ) )
 	else
@@ -60,6 +77,8 @@ begin
 	Ncurses.cbreak
 	Ncurses.noecho
 	Ncurses.halfdelay( 10 )
+
+	sortBy = 0
 
 	while( true )
 		Ncurses.clear
@@ -106,19 +125,21 @@ begin
 			)
 		end
 
+		t.sort_by( sortBy )
+
 		t.format.each do |line|
 			n.addstr( line )
 		end
 
-		n.refresh
-
 		char = n.getch
 		case( char )
 			when 49..54
-				t.sort_by( char - 49 )
+				sortBy = char - 49
 			when 113
 				raise( LetsExit )
 		end
+
+		n.refresh
 	end
 rescue LetsExit
 ensure
