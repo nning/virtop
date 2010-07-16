@@ -30,12 +30,12 @@ if( ARGV.first == "-h" or ARGV.first == "--help" )
 	$stderr.puts <<EOF
 #{$0} [libvirt-uri]
 
-libvirt-uri		is optional. Default is qemu:///system (for the local libvirt
-				daemon). See http://libvirt.org/uri.html for URI format.
+libvirt-uri   is optional. Default is qemu:///system (for the local libvirt
+              daemon). See http://libvirt.org/uri.html for URI format.
 
 Key bindings:
-	q			Quit.
-	1..6		Sort by column number.
+  q      Quit.
+  1..6   Sort by column number.
 
 EOF
 	exit( 1 )

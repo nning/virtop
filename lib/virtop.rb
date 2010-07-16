@@ -1,7 +1,7 @@
 require( 'libvirt' )
 
 module Virtop
-	VERSION = '0.0.8'
+	VERSION = '0.0.9'
 end
 
 $:.unshift( File.dirname( __FILE__ ) )
