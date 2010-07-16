@@ -16,8 +16,26 @@ class Virtop::Table
 
 	def each_row
 		@rows.each do |row|
-			yield( row.to_s )
+			yield( row )
 		end
+	end
+
+	# Sorts the table by a certain column given by it's header string or the
+	# index of the column starting at zero.
+	def sort_by( col )
+		if( col.class == String )
+			index = @header.index( col )
+		else
+			index = col.to_i
+		end
+
+		@rows = @rows.sort_by do |row|
+			row[index]
+		end
+	end
+
+	def rows
+		@rows
 	end
 
 	def format

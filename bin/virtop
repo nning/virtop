@@ -112,7 +112,13 @@ begin
 
 		n.refresh
 
-		raise( LetsExit ) if( n.getch == 113 )
+		char = n.getch
+		case( char )
+			when 49..54
+				t.sort_by( char - 49 )
+			when 113
+				raise( LetsExit )
+		end
 	end
 rescue LetsExit
 ensure
