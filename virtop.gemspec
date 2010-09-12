@@ -1,3 +1,5 @@
+$:.unshift( File.dirname( __FILE__ ) )
+
 require( 'lib/virtop' )
 
 Gem::Specification.new do |s|
@@ -14,5 +16,5 @@ Gem::Specification.new do |s|
 	s.executables = Dir.glob( 'bin/**' ).map { |x| x[4..-1] }
 
 	s.add_dependency( 'ruby-libvirt', '>= 0.1.0' )
-#	s.add_dependency( 'elliottcable-ncurses', '>= 1.3.1' )
+	s.add_dependency( 'snowleopard-ncurses', '>= 1.2.4' )
 end
