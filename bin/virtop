@@ -1,29 +1,12 @@
 #!/usr/bin/env ruby
 
-# Require uri module and print out exception message if it could not be loaded.
-begin
-  require 'uri'
-rescue LoadError => e
-  $stderr.puts e.message
-  exit 1
-end
+require 'ncursesw'
+require 'uri'
 
-# Require ncurses module and print out instructions howto install it if it could
-# not be loaded.
-begin
-  require 'ncurses'
-rescue LoadError
-  $stderr.puts <<EOF
-The Ruby bindings to the ncurses library are missing. The ncurses gem on
-rubygems.org is not working with Ruby 1.9, so please issue the following
-commands as superuser to install a working ncurses gem from github.com:
-
-  gem source -a http://gems.github.com
-  gem install elliottcable-ncurses
-
-EOF
-  exit 1
-end
+# Require and include virtop module. It will require libvirt.
+$:.unshift(File.dirname(__FILE__) + '/../lib')
+require 'virtop'
+include Virtop
 
 # Show some lines of help.
 if ['-h', '--help'].include? ARGV.first
@@ -40,11 +23,6 @@ Key bindings:
 EOF
   exit 1
 end
-
-# Require and include virtop module. It will require libvirt.
-$:.unshift(File.dirname(__FILE__) + '/../lib')
-require 'virtop'
-include Virtop
 
 # Connection URL will be qemu:///system if nothing else is given as the first
 # parameter.
