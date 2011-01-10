@@ -2,18 +2,18 @@
 
 # Require uri module and print out exception message if it could not be loaded.
 begin
-	require( 'uri' )
+  require 'uri'
 rescue LoadError => e
-	$stderr.puts( e.message )
-	exit( 1 )
+  $stderr.puts e.message
+  exit 1
 end
 
 # Require ncurses module and print out instructions howto install it if it could
 # not be loaded.
 begin
-	require 'ncurses'
+  require 'ncurses'
 rescue LoadError
-	$stderr.puts <<EOF
+  $stderr.puts <<EOF
 The Ruby bindings to the ncurses library are missing. The ncurses gem on
 rubygems.org is not working with Ruby 1.9, so please issue the following
 commands as superuser to install a working ncurses gem from github.com:
@@ -22,12 +22,12 @@ commands as superuser to install a working ncurses gem from github.com:
   gem install elliottcable-ncurses
 
 EOF
-	exit( 1 )
+  exit 1
 end
 
 # Show some lines of help.
-if( ARGV.first == "-h" or ARGV.first == "--help" )
-	$stderr.puts <<EOF
+if ['-h', '--help'].include? ARGV.first
+  $stderr.puts <<EOF
 #{$0} [libvirt-uri]
 
 libvirt-uri   is optional. Default is qemu:///system (for the local libvirt
@@ -38,118 +38,118 @@ Key bindings:
   1..6   Sort by column number.
 
 EOF
-	exit( 1 )
+  exit 1
 end
 
 # Require and include virtop module. It will require libvirt.
-$:.unshift( File.join( File.dirname( __FILE__ ), '../lib' ) )
-require( 'virtop' )
+$:.unshift(File.dirname(__FILE__) + '/../lib')
+require 'virtop'
 include Virtop
 
 # Connection URL will be qemu:///system if nothing else is given as the first
 # parameter.
-if( ARGV.size < 1 )
-	url = 'qemu:///system'
+if ARGV.size < 1
+  url = 'qemu:///system'
 else
-	uri = URI.parse( ARGV.first )
+  uri = URI.parse ARGV.first
 
-	# Works around a deadlock if path is empty.
-	if( uri.scheme == 'qemu+ssh' and uri.path == '' )
-		raise( Exception.new( 'invalid url specified' ) )
-	else
-		url = uri.to_s
-	end
+  # Works around a deadlock if path is empty.
+  if uri.scheme == 'qemu+ssh' and uri.path == ''
+    raise Exception.new 'invalid url specified'
+  else
+    url = uri.to_s
+  end
 end
 
 # Open the connection to the libvirt ressource or print out error message.
 begin
-	c = Libvirt::open( url )
+  c = Libvirt::open url
 rescue Libvirt::ConnectionError
-	$stderr.puts( 'connection failed' )
-	exit( 1 )
+  $stderr.puts 'connection failed'
+  exit 1
 end
 
 # Initialize ncurses context. Clear and print details for each domain in a 10s
 # interval. Quit on keypress of 'q'.
 begin
-	n = Ncurses.initscr
+  n = Ncurses.initscr
 
-	Ncurses.cbreak
-	Ncurses.noecho
-	Ncurses.halfdelay( 10 )
+  Ncurses.cbreak
+  Ncurses.noecho
+  Ncurses.halfdelay 10
 
-	# Default sorting by first column (domain name).
-	sortBy = 0
+  # Default sorting by first column (domain name).
+  sortBy = 0
 
-	while( true )
-		Ncurses.clear
+  while true
+    Ncurses.clear
 
-		n.intrflush( false )
-		n.keypad( true )
+    n.intrflush false
+    n.keypad true
 
-		# Add topmost meta information lines to ncurses screen.
-		n.addstr(
-			c.hostname.upcase +
-			"\n" +
-			' cores ' + c.cores +
-			' cpus ' + c.cpus +
-			' ghz ' + c.ghz +
-			' arch ' + c.arch +
-			"\n" +
-			' mem ' + c.mem +
-			' free ' + c.memfree +
-			"\n" +
-			' version ' + c.version +
-			"\n\n"
-		)
+    # Add topmost meta information lines to ncurses screen.
+    n.addstr(
+      c.hostname.upcase +
+      "\n" +
+      ' cores ' + c.cores +
+      ' cpus ' + c.cpus +
+      ' ghz ' + c.ghz +
+      ' arch ' + c.arch +
+      "\n" +
+      ' mem ' + c.mem +
+      ' free ' + c.memfree +
+      "\n" +
+      ' version ' + c.version +
+      "\n\n"
+    )
 
-		# Initialize table (columns).
-		t = Table.new(
-			'NAME',
-			'STATE',
-			'MEM',
-			'MEM_MAX',
-			'CPU_NUM',
-			'CPU_TIME'
-		)
+    # Initialize table (columns).
+    t = Table.new(
+      'NAME',
+      'STATE',
+      'MEM',
+      'MEM_MAX',
+      'CPU_NUM',
+      'CPU_TIME'
+    )
 
-		# Add information of each domain to table.
-		c.domains.each do |d|
-			t.add_row(
-				d.name,
-				d.state,
-				d.mem,
-				d.mem_max,
-				d.cpu_num,
-				d.cpu_time
-			)
-		end
+    # Add information of each domain to table.
+    c.domains.each do |d|
+      t.add_row(
+        d.name,
+        d.state,
+        d.mem,
+        d.mem_max,
+        d.cpu_num,
+        d.cpu_time
+      )
+    end
 
-		# Sort table by chosen column.
-		t.sort_by( sortBy )
+    # Sort table by chosen column.
+    t.sort_by sortBy
 
-		# Convert table to array of padded strings and add them to ncurses
-		# screen.
-		t.format.each do |line|
-			n.addstr( line )
-		end
+    # Convert table to array of padded strings and add them to ncurses
+    # screen.
+    t.format.each do |line|
+      n.addstr line
+    end
 
-		# Wait for single char user input.
-		char = n.getch
-		case( char )
-			# Key '1' till '6'
-			when 49..54
-				sortBy = char - 49
-			# Key 'q'
-			when 113
-				raise( LetsExit )
-		end
+    # Wait for single char user input.
+    char = n.getch
+    case char
+      # Key '1' till '6'
+      when 49..54
+        sortBy = char - 49
+      # Key 'q'
+      when 113
+        raise LetsExit
+    end
 
-		n.refresh
-	end
+    n.refresh
+  end
 rescue LetsExit
 ensure
-	Ncurses.echo
-	Ncurses.cbreak
-	Ncurses.endwin
+  Ncurses.echo
+  Ncurses.cbreak
+  Ncurses.endwin
 end

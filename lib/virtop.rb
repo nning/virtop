@@ -1,11 +1,11 @@
-require( 'libvirt' )
+require 'libvirt'
 
 module Virtop
-	VERSION = '0.0.11'
+  VERSION = '0.0.12'
 end
 
-$:.unshift( File.dirname( __FILE__ ) )
+$:.unshift File.dirname(__FILE__)
 
-Dir.glob( $:.first + '/*/*.rb' ).sort.each do |file|
-	require( file )
+Dir.glob($:.first + '/*/*.rb').sort.each do |file|
+  require file
 end
