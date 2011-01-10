@@ -88,20 +88,23 @@ begin
     n.keypad true
 
     # Add topmost meta information lines to ncurses screen.
-    n.addstr(
-      c.hostname.upcase +
-      "\n" +
-      ' cores ' + c.cores +
-      ' cpus ' + c.cpus +
-      ' ghz ' + c.ghz +
-      ' arch ' + c.arch +
-      "\n" +
-      ' mem ' + c.mem +
-      ' free ' + c.memfree +
-      "\n" +
-      ' version ' + c.version +
-      "\n\n"
-    )
+    begin
+      n.addstr(
+        c.hostname.upcase +
+        "\n" +
+        ' cores ' + c.cores +
+        ' cpus ' + c.cpus +
+        ' ghz ' + c.ghz +
+        ' arch ' + c.arch +
+        "\n" +
+        ' mem ' + c.mem +
+        ' free ' + c.memfree +
+        "\n" +
+        ' version ' + c.version +
+        "\n\n"
+      )
+    rescue Libvirt::Error
+    end
 
     # Initialize table (columns).
     t = Table.new(
