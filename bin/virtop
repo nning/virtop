@@ -11,7 +11,7 @@ include Virtop
 # Show some lines of help.
 if ['-h', '--help'].include? ARGV.first
   $stderr.puts <<EOF
-#{$0} [libvirt-uri]
+#{$0} {[libvirt-uri]}
 
 libvirt-uri   is optional. Default is qemu:///system (for the local libvirt
               daemon). See http://libvirt.org/uri.html for URI format.
@@ -27,24 +27,36 @@ end
 # Connection URL will be qemu:///system if nothing else is given as the first
 # parameter.
 if ARGV.size < 1
-  url = 'qemu:///system'
+  urls = ['qemu:///system']
 else
-  uri = URI.parse ARGV.first
+  urls = []
 
-  # Works around a deadlock if path is empty.
-  if uri.scheme == 'qemu+ssh' and uri.path == ''
-    raise Exception.new 'invalid url specified'
-  else
-    url = uri.to_s
+  ARGV.each do |url|
+    uri = URI.parse url
+
+    # Works around a deadlock if path is empty.
+    if uri.scheme == 'qemu+ssh' and uri.path == ''
+      raise Exception.new 'Invalid url specified: ' + uri.to_s
+    else
+      urls.push uri.to_s
+    end
   end
 end
 
+connections = []
+
 # Open the connection to the libvirt ressource or print out error message.
-begin
-  c = Libvirt::open url
-rescue Libvirt::ConnectionError
-  $stderr.puts 'connection failed'
-  exit 1
+urls.each do |url|
+  thread = Thread.start do
+    begin
+      connections.push Libvirt::open url
+    rescue Libvirt::ConnectionError
+      $stderr.puts 'Connection failed: ' + url.to_s
+      exit 1
+    end
+  end
+
+  thread.join
 end
 
 # Initialize ncurses context. Clear and print details for each domain in a 10s
@@ -66,22 +78,24 @@ begin
     n.keypad true
 
     # Add topmost meta information lines to ncurses screen.
-    begin
-      n.addstr(
-        c.hostname.upcase +
-        "\n" +
-        ' cores ' + c.cores +
-        ' cpus ' + c.cpus +
-        ' ghz ' + c.ghz +
-        ' arch ' + c.arch +
-        "\n" +
-        ' mem ' + c.mem +
-        ' free ' + c.memfree +
-        "\n" +
-        ' version ' + c.version +
-        "\n\n"
-      )
-    rescue Libvirt::Error
+    connections.each do |c|
+      begin
+        n.addstr(
+          c.hostname.upcase +
+          "\n" +
+          ' cores ' + c.cores +
+          ' cpus ' + c.cpus +
+          ' ghz ' + c.ghz +
+          ' arch ' + c.arch +
+          "\n" +
+          ' mem ' + c.mem +
+          ' free ' + c.memfree +
+          "\n" +
+          ' version ' + c.version +
+          "\n\n"
+        )
+      rescue Libvirt::Error
+      end
     end
 
     # Initialize table (columns).
@@ -95,15 +109,17 @@ begin
     )
 
     # Add information of each domain to table.
-    c.domains.each do |d|
-      t.add_row(
-        d.name,
-        d.state,
-        d.mem,
-        d.mem_max,
-        d.cpu_num,
-        d.cpu_time
-      )
+    connections.each do |c|
+      c.domains.each do |d|
+        t.add_row(
+          d.name,
+          d.state,
+          d.mem,
+          d.mem_max,
+          d.cpu_num,
+          d.cpu_time
+        )
+      end
     end
 
     # Sort table by chosen column.
@@ -133,4 +149,8 @@ ensure
   Ncurses.echo
   Ncurses.cbreak
   Ncurses.endwin
+
+  connections.each do |c|
+    c.close
+  end
 end
