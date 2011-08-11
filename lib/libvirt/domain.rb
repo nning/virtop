@@ -8,14 +8,8 @@ class Libvirt::Domain
 
   # Return state as string symbol.
   def state
-    case self.info.state
-      when 1
-        ">"
-      when 3
-        "||"
-      else
-        "?"
-    end
+    states = ['none', 'run', 'block', 'pause', 'halting', 'off', 'crash']
+    states[self.info.state]
   end
 
   # Return current memory assignment in mebibytes as string.
