@@ -27,7 +27,11 @@ class Virtop::Table
     end
 
     @rows = @rows.sort_by do |row|
-      row[index]
+      if block_given?
+        yield row[index]
+      else
+        row[index]
+      end
     end
   end
 

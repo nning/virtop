@@ -123,7 +123,13 @@ begin
     end
 
     # Sort table by chosen column.
-    t.sort_by sortBy
+    t.sort_by sortBy do |y|
+      if [2, 3].include? sortBy
+        y.to_i
+      else
+        y
+      end
+    end
 
     # Convert table to array of padded strings and add them to ncurses
     # screen.
