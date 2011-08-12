@@ -2,6 +2,7 @@
 
 require 'ncursesw'
 require 'uri'
+require 'yaml'
 
 # Require and include virtop module. It will require libvirt.
 $:.unshift(File.dirname(__FILE__) + '/../lib')
@@ -24,10 +25,20 @@ EOF
   exit 1
 end
 
+config = {
+  'urls' => ['qemu:///system'],
+  'sort_by' => 0
+}
+
+begin
+  config.merge!(YAML.load_file(File.expand_path('~/.virtop.yaml')))
+rescue Errno::ENOENT
+end
+
 # Connection URL will be qemu:///system if nothing else is given as the first
 # parameter.
 if ARGV.size < 1
-  urls = ['qemu:///system']
+  urls = config['urls']
 else
   urls = []
 
@@ -69,7 +80,7 @@ begin
   Ncurses.halfdelay 10
 
   # Default sorting by first column (domain name).
-  sortBy = 0
+  sortBy = config['sort_by']
 
   while true
     Ncurses.clear
