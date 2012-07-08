@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.author = 'henning mueller'
   s.email = 'henning@orgizm.net'
 
-  s.files = Dir.glob('{bin,lib}/**/*') << 'README.rdoc'
+  s.files = Dir.glob('{bin,lib}/**/*') + Dir.glob('man/*.gz') + %w(README.md LICENSE)
   s.executables = Dir.glob('bin/**').map { |x| x[4..-1] }
 
   s.add_dependency 'ncursesw', '>= 1.2.4.2'

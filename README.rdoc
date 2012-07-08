@@ -1,6 +1,0 @@
-== Installation ==
-
-Build the virtop gem and install it.
-
- * gem build virtop.gemspec
- * gem install virtop-*.gem
