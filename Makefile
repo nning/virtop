@@ -12,6 +12,9 @@ doc-yard: doc/index.html
 man-open: man/virtop.1
 	nroff -man man/virtop.1 | more
 
+upload: build
+	gem push virtop-?.?.?.gem
+
 virtop%.gem: doc
 	gem build virtop.gemspec
 
@@ -24,4 +27,4 @@ man/virtop.1.gz: man/virtop.1
 doc/index.html: README.md bin/* lib/*.rb lib/*/*.rb
 	yard
 
-.PHONY: build clean doc doc-prepare doc-yard
+.PHONY: build clean doc doc-prepare doc-yard man-open upload
